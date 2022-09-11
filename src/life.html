@@ -5,8 +5,9 @@ width = 800
 height = 650
 particleWidth = 7
 particleHeight = 7
-particelsCount = 30
-particelsVelocity = 1
+particelsCount = 200
+particelsVelocityReduce = 0.5
+forceRange = 100
 
 m = document.getElementById("life").getContext('2d')
 
@@ -35,21 +36,21 @@ create = (number, color) => {
 
 rule = (particles1, particles2, g) => {
 	for(let i = 0; i < particles1.length; i++) {
-		fx = 0
-		fy = 0
+		fx = 0 // init force for x dimension
+		fy = 0 // init force for y dimension
 		for(let j = 0; j < particles2.length; j++) {
-			a = particles1[i]
-			b = particles2[j]
+			a = particles1[i] // particle a
+			b = particles2[j] // particle b
 			dx = a.x - b.x
 			dy = a.y - b.y
-			d = Math.sqrt(dx * dx + dy * dy)
-			if (d > 0) {
-				F = g * 1/d
+			d = Math.sqrt(dx * dx + dy * dy) // distance between particles a and b
+			if (d > 0 && d < forceRange) {
+				F = g * 1/d // attraction force by gravity law with all particles mass = 1
 				fx += (F * dx)
 				fy += (F * dy)	
 			}
-			a.vx = (a.vx + fx) * particelsVelocity
-			a.vy = (a.vy + fy) * particelsVelocity
+			a.vx = (a.vx + fx) * particelsVelocityReduce // particle velocity applied by attraction force 
+			a.vy = (a.vy + fy) * particelsVelocityReduce
 			a.x += a.vx
 			a.y += a.vy
 			if (a.x <= 0 || a.x >= width) { a.vx *= -1}
@@ -66,7 +67,7 @@ sleep = (delay) => {
 }
 
 update = () => {
-	rule(yellow, yellow, -1)
+	rule(yellow, yellow, 1)
 	m.clearRect(0, 0, width, height)
 	draw(0, 0, "black", width, height)
 	for (i = 0; i < particles.length; i++) {
