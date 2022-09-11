@@ -1,11 +1,18 @@
-<canvas id="life" width="500" height="500"></canvas>
+<canvas id="life" width="800" height="650"></canvas>
 <script>
+
+width = 800
+height = 650
+particleWidth = 7
+particleHeight = 7
+particelsCount = 30
+particelsVelocity = 1
 
 m = document.getElementById("life").getContext('2d')
 
-draw = (x, y, c, s) => {
+draw = (x, y, c, w, h) => {
 	m.fillStyle = c
-	m.fillRect(x, y, s, s)
+	m.fillRect(x, y, w, h)
 }
 
 particles = []
@@ -41,15 +48,17 @@ rule = (particles1, particles2, g) => {
 				fx += (F * dx)
 				fy += (F * dy)	
 			}
-			a.vx = (a.vx + fx)
-			a.vy = (a.vy + fy)
+			a.vx = (a.vx + fx) * particelsVelocity
+			a.vy = (a.vy + fy) * particelsVelocity
 			a.x += a.vx
 			a.y += a.vy
+			if (a.x <= 0 || a.x >= width) { a.vx *= -1}
+			if (a.y <= 0 || a.y >= height) { a.vy *= -1}
 		}
 	}
 }
 
-yellow = create(2, "yellow")
+yellow = create(particelsCount, "yellow")
 
 sleep = (delay) => {
 	var start = new Date().getTime();
@@ -58,17 +67,15 @@ sleep = (delay) => {
 
 update = () => {
 	rule(yellow, yellow, -1)
-	m.clearRect(0, 0, 500, 500)
-	draw(0, 0, "black", 500)
+	m.clearRect(0, 0, width, height)
+	draw(0, 0, "black", width, height)
 	for (i = 0; i < particles.length; i++) {
 		draw(particles[i].x, particles[i].y,
-			particles[i].color, 5)
+			particles[i].color, particleWidth, particleHeight)
 	//	sleep(100)
 	}
 	requestAnimationFrame(update)
 }
-
-
 
 update();
 </script>
