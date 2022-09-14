@@ -5,10 +5,10 @@ width = 500
 height = 500
 particleWidth = 7
 particleHeight = 7
-particelsCount = 50
-particelsVelocityReduce = 0.5
-forceRange = 800
-gForce = -0.3
+particelsCount = 200
+particelsVelocityReduce = 0.3
+forceRange = 80
+gForce = -0.1
 
 m = document.getElementById("life").getContext('2d')
 
@@ -51,29 +51,34 @@ rule = (particles1, particles2, g) => {
 				fy += (F * dy)	
 			}
 
-//			b.vx = (b.vx + fx) * particelsVelocityReduce
-//			b.vy = (b.vy + fy) * particelsVelocityReduce
-//			b.x += b.vx
-//			b.y += b.vy
+			b.vx = (b.vx + fx) * particelsVelocityReduce
+			b.vy = (b.vy + fy) * particelsVelocityReduce
 
-//			if (b.x < 0 || b.x >= width) { b.vx *= -1}
-//			if (b.y < 0 || b.y >= height) { b.vy *= -1}
+			if (b.x < 0 || b.x >= width - particleWidth) { b.vx *= -1}
+			if (b.y < 0 || b.y >= height - particleHeight) { b.vy *= -1}
+
+			b.x += b.vx
+			b.y += b.vy
 		}
 			a.vx = (a.vx + fx) * particelsVelocityReduce // particle velocity applied by attraction force 
 			a.vy = (a.vy + fy) * particelsVelocityReduce
+
+			if (a.x < 0 || a.x >= width - particleWidth) { a.vx *= -1}
+			if (a.y < 0 || a.y >= height - particleHeight) { a.vy *= -1}
+
 			a.x += a.vx
 			a.y += a.vy
 
-			if (a.x < 0 || a.x >= width) { a.vx *= -1}
-			if (a.y < 0 || a.y >= height) { a.vy *= -1}
 	}
 }
 
 yellow = create(particelsCount, "yellow")
-//red = create(particelsCount, "red")
+red = create(particelsCount, "red")
 
 update = () => {
+	rule(yellow, red, gForce)
 	rule(yellow, yellow, gForce)
+	rule(red, red, gForce)
 	m.clearRect(0, 0, width, height)
 	draw(0, 0, "black", width, height)
 	for (i = 0; i < particles.length; i++) {
