@@ -1,14 +1,14 @@
-<canvas id="life" width="500" height="500"></canvas>
+<canvas id="life" width="800" height="800"></canvas>
 <script>
 
-width = 500
-height = 500
+width = 800
+height = 800
 particleWidth = 7
 particleHeight = 7
-particelsCount = 200
-particelsVelocityReduce = 0.3
-forceRange = 80
-gForce = -0.1
+particelsCount = 2
+particelsVelocityReduce = 0.1
+forceRange = 8000
+//gForce = -0.1
 
 m = document.getElementById("life").getContext('2d')
 
@@ -22,14 +22,10 @@ particle = (x, y, c) => {
 	return { "x" : x, "y" : y, "vx" : 0, "vy" : 0, "color" : c }
 }
 
-random = () => {
-	return Math.random() * 400 + 50
-}
-
 create = (number, color) => {
 	group = []
 	for (let i = 0; i < number; i++) {
-		group.push(particle(random(), random(), color))
+		group.push(particle(Math.random() * (width - 100) + 50, Math.random() * (height - 100) + 50, color))
 		particles.push(group[i])
 	}
 	return group
@@ -54,8 +50,8 @@ rule = (particles1, particles2, g) => {
 			b.vx = (b.vx + fx) * particelsVelocityReduce
 			b.vy = (b.vy + fy) * particelsVelocityReduce
 
-			if (b.x < 0 || b.x >= width - particleWidth) { b.vx *= -1}
-			if (b.y < 0 || b.y >= height - particleHeight) { b.vy *= -1}
+			if (b.x < 0  + particleWidth || b.x >= width - particleWidth) { b.vx *= -1}
+			if (b.y < 0 + particleHeight || b.y >= height - particleHeight) { b.vy *= -1}
 
 			b.x += b.vx
 			b.y += b.vy
@@ -63,8 +59,8 @@ rule = (particles1, particles2, g) => {
 			a.vx = (a.vx + fx) * particelsVelocityReduce // particle velocity applied by attraction force 
 			a.vy = (a.vy + fy) * particelsVelocityReduce
 
-			if (a.x < 0 || a.x >= width - particleWidth) { a.vx *= -1}
-			if (a.y < 0 || a.y >= height - particleHeight) { a.vy *= -1}
+			if (a.x < 0 + particleWidth || a.x >= width - particleWidth) { a.vx *= -1}
+			if (a.y < 0 + particleHeight || a.y >= height - particleHeight) { a.vy *= -1}
 
 			a.x += a.vx
 			a.y += a.vy
@@ -72,13 +68,13 @@ rule = (particles1, particles2, g) => {
 	}
 }
 
-yellow = create(particelsCount, "yellow")
+//yellow = create(particelsCount, "yellow")
 red = create(particelsCount, "red")
 
 update = () => {
-	rule(yellow, red, gForce)
-	rule(yellow, yellow, gForce)
-	rule(red, red, gForce)
+	rule(red, red, -10)
+	//rule(red, yellow, -0.01)
+	//rule(yellow, red, 0.01)
 	m.clearRect(0, 0, width, height)
 	draw(0, 0, "black", width, height)
 	for (i = 0; i < particles.length; i++) {
