@@ -1,16 +1,20 @@
-<canvas id="life" width="800" height="800"></canvas>
+<canvas id="life" width="1" height="1"></canvas>
 <script>
-
 width = 800
 height = 800
 particleWidth = 7
 particleHeight = 7
-particelsCount = 2
-particelsVelocityReduce = 0.1
-forceRange = 8000
+particelsCount = 200
+particelsVelocityReduce = 0.5
+forceRange = 80
 //gForce = -0.1
 
 m = document.getElementById("life").getContext('2d')
+
+setCanvasSize = () => {
+	m.canvas.width = width
+	m.canvas.height = height
+}
 
 draw = (x, y, c, w, h) => {
 	m.fillStyle = c
@@ -22,10 +26,14 @@ particle = (x, y, c) => {
 	return { "x" : x, "y" : y, "vx" : 0, "vy" : 0, "color" : c }
 }
 
+randomStartPoint = (border) => {
+	return Math.random() * (border - 100) + 50
+}
+
 create = (number, color) => {
 	group = []
 	for (let i = 0; i < number; i++) {
-		group.push(particle(Math.random() * (width - 100) + 50, Math.random() * (height - 100) + 50, color))
+		group.push(particle(randomStartPoint(width), randomStartPoint(height), color))
 		particles.push(group[i])
 	}
 	return group
@@ -43,24 +51,37 @@ rule = (particles1, particles2, g) => {
 			d = Math.sqrt(dx * dx + dy * dy) // distance between particles a and b
 			if (d > 0 && d < forceRange) {
 				F = g * 1/d // attraction force by gravity law with all particles mass = 1
+				// todo1: fix fx and fy, when they have invalid number sign 
 				fx += (F * dx)
 				fy += (F * dy)	
 			}
 
-			b.vx = (b.vx + fx) * particelsVelocityReduce
-			b.vy = (b.vy + fy) * particelsVelocityReduce
-
-			if (b.x < 0  + particleWidth || b.x >= width - particleWidth) { b.vx *= -1}
-			if (b.y < 0 + particleHeight || b.y >= height - particleHeight) { b.vy *= -1}
-
-			b.x += b.vx
-			b.y += b.vy
 		}
 			a.vx = (a.vx + fx) * particelsVelocityReduce // particle velocity applied by attraction force 
 			a.vy = (a.vy + fy) * particelsVelocityReduce
+			
+			// todo1: remove 
+			if (a.x <= 0) {
+				if (a.vx < 0) {
+					a.vx *= -1
+				}
+			}
+			if (a.x >= width) {
+				if (a.vx > 0) {
+					a.vx *= -1
+				}
+			}
 
-			if (a.x < 0 + particleWidth || a.x >= width - particleWidth) { a.vx *= -1}
-			if (a.y < 0 + particleHeight || a.y >= height - particleHeight) { a.vy *= -1}
+			if (a.y <= 0) {
+				if (a.vy < 0) {
+					a.vy *= -1
+				}
+			}
+			if (a.y >= height) {
+				if (a.vy > 0) {
+					a.vy *= -1
+				}
+			}
 
 			a.x += a.vx
 			a.y += a.vy
@@ -68,13 +89,13 @@ rule = (particles1, particles2, g) => {
 	}
 }
 
-//yellow = create(particelsCount, "yellow")
+yellow = create(particelsCount, "yellow")
 red = create(particelsCount, "red")
 
 update = () => {
-	rule(red, red, -10)
-	//rule(red, yellow, -0.01)
-	//rule(yellow, red, 0.01)
+	rule(red, red, -0.1)
+	rule(red, yellow, -0.01)
+	rule(yellow, red, 0.01)
 	m.clearRect(0, 0, width, height)
 	draw(0, 0, "black", width, height)
 	for (i = 0; i < particles.length; i++) {
@@ -84,5 +105,6 @@ update = () => {
 	requestAnimationFrame(update)
 }
 
+setCanvasSize();
 update();
 </script>
