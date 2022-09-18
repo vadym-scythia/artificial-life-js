@@ -1,125 +1,151 @@
-<canvas id="life" width="1" height="1"></canvas>
-<script>
+<html>
+<title>Life</title>
+
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <canvas id="life" width="1" height="1"></canvas>
+	
+    <script>
 // consts
-width = 1050
-height = 600
-particleWidth = 7
-particleHeight = 7
-particelsCount = 200
-particelsVelocityReduce = 0.5
-forceRange = 100
+	width = 1050
+	height = 600
+	particleWidth = 7
+	particleHeight = 7
+	particelsCount = 200
+	particelsVelocityReduce = 0.5
+	forceRange = 100
 
 // drawing utils
-canvasContext = document.getElementById("life").getContext('2d')
+	canvasContext = document.getElementById("life").getContext('2d')
 
-setCanvasSize = () => {
-	canvasContext.canvas.width = width
-	canvasContext.canvas.height = height
-}
+	setCanvasSize = () => {
+		canvasContext.canvas.width = width
+		canvasContext.canvas.height = height
+	}
 
-draw = (x, y, c, w, h) => {
-	canvasContext.fillStyle = c
-	canvasContext.fillRect(x, y, w, h)
-}
+	draw = (x, y, c, w, h) => {
+		canvasContext.fillStyle = c
+		canvasContext.fillRect(x, y, w, h)
+	}
 
 // particles' utils
-particles = []
-particle = (x, y, c) => {
-	return { "x" : x, "y" : y, "vx" : 0, "vy" : 0, "color" : c }
-}
-
-randomStartPoint = (border) => {
-	return Math.random() * (border - 100) + 50
-}
-
-create = (number, color) => {
-	group = []
-	for (let i = 0; i < number; i++) {
-		group.push(particle(randomStartPoint(width), randomStartPoint(height), color))
-		particles.push(group[i])
+	particles = []
+	particle = (x, y, c) => {
+		return { "x" : x, "y" : y, "vx" : 0, "vy" : 0, "color" : c }
 	}
-	return group
-}
 
-yellow = create(particelsCount, "yellow")
-red = create(particelsCount, "red")
-green = create(particelsCount, "green")
+	randomStartPoint = (border) => {
+		return Math.random() * (border - 100) + 50
+	}
+
+	create = (number, color) => {
+		group = []
+		for (let i = 0; i < number; i++) {
+			group.push(particle(randomStartPoint(width), randomStartPoint(height), color))
+			particles.push(group[i])
+		}
+		return group
+	}
+
+	yellow = create(particelsCount, "yellow")
+	red = create(particelsCount, "red")
+	green = create(particelsCount, "green")
 
 // main logic 
 // rule itself is the application of simplified Newtons' attraction force law.
-rule = (particles1, particles2, g) => {
-	for(let i = 0; i < particles1.length; i++) {
-		initForceForX = 0
-		initForceForY = 0
-		for(let j = 0; j < particles2.length; j++) {
-			particle1 = particles1[i]
-			particle2 = particles2[j]
-			distanceX = particle1.x - particle2.x
-			distanceY = particle1.y - particle2.y
-			distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
-			if (distance > 0 && distance < forceRange) {
-				attractionForce = g * 1/distance
-				// todo1: fix initForceForX and initForceForY, investigate why they have invalid number sign sometimes
-				initForceForX += (attractionForce * distanceX)
-				initForceForY += (attractionForce * distanceY)
+	rule = (particles1, particles2, g) => {
+		for(let i = 0; i < particles1.length; i++) {
+			initForceForX = 0
+			initForceForY = 0
+			for(let j = 0; j < particles2.length; j++) {
+				particle1 = particles1[i]
+				particle2 = particles2[j]
+				distanceX = particle1.x - particle2.x
+				distanceY = particle1.y - particle2.y
+				distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
+				if (distance > 0 && distance < forceRange) {
+					attractionForce = g * 1/distance
+					// todo1: fix initForceForX and initForceForY, investigate why they have invalid number sign sometimes
+					initForceForX += (attractionForce * distanceX)
+					initForceForY += (attractionForce * distanceY)
+				}
+
 			}
+				particle1.vx = (particle1.vx + initForceForX) * particelsVelocityReduce
+				particle1.vy = (particle1.vy + initForceForY) * particelsVelocityReduce
+			
+				// todo1: remove 
+				if (particle1.x <= 0) {
+					if (particle1.vx < 0) {
+						particle1.vx *= -1
+					}
+				}
+				if (particle1.x >= width) {
+					if (particle1.vx > 0) {
+						particle1.vx *= -1
+					}
+				}
+	
+				if (particle1.y <= 0) {
+					if (particle1.vy < 0) {
+						particle1.vy *= -1
+					}
+				}
+				if (particle1.y >= height) {
+					if (particle1.vy > 0) {
+						particle1.vy *= -1
+					}
+				}
+
+				particle1.x += particle1.vx
+				particle1.y += particle1.vy
 
 		}
-			particle1.vx = (particle1.vx + initForceForX) * particelsVelocityReduce
-			particle1.vy = (particle1.vy + initForceForY) * particelsVelocityReduce
-			
-			// todo1: remove 
-			if (particle1.x <= 0) {
-				if (particle1.vx < 0) {
-					particle1.vx *= -1
-				}
-			}
-			if (particle1.x >= width) {
-				if (particle1.vx > 0) {
-					particle1.vx *= -1
-				}
-			}
-
-			if (particle1.y <= 0) {
-				if (particle1.vy < 0) {
-					particle1.vy *= -1
-				}
-			}
-			if (particle1.y >= height) {
-				if (particle1.vy > 0) {
-					particle1.vy *= -1
-				}
-			}
-
-			particle1.x += particle1.vx
-			particle1.y += particle1.vy
-
 	}
-}
 
-update = () => {
-	greenButterfly()
-	canvasContext.clearRect(0, 0, width, height)
-	draw(0, 0, "black", width, height)
-	for (i = 0; i < particles.length; i++) {
-		draw(particles[i].x, particles[i].y,
-			particles[i].color, particleWidth, particleHeight)
+	update = () => {
+		greenButterfly()
+		canvasContext.clearRect(0, 0, width, height)
+		draw(0, 0, "black", width, height)
+		for (i = 0; i < particles.length; i++) {
+			draw(particles[i].x, particles[i].y,
+				particles[i].color, particleWidth, particleHeight)
+		}
+		requestAnimationFrame(update)
 	}
-	requestAnimationFrame(update)
-}
 
 // patterns
-greenButterfly = () => {
-	rule(green, green, -0.32)
-	rule(green, red, -0.17)
-	rule(green, yellow, 0.34)
-	rule(red, red, 0.10)
-	rule(red, green, -0.34)
-	rule(yellow, yellow, 0.15)
-	rule(yellow, green, -0.20)
-}
+	greenButterfly = () => {
+		rule(green, green, -0.32)
+		rule(green, red, -0.17)
+		rule(green, yellow, 0.34)
+		rule(red, red, 0.10)
+		rule(red, green, -0.34)
+		rule(yellow, yellow, 0.15)
+		rule(yellow, green, -0.20)
+	}
 
 // run
-setCanvasSize();
-update();
-</script>
+	setCanvasSize();
+	update();
+    </script>
+
+<body>
+
+</html>
